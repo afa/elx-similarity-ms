@@ -1,4 +1,14 @@
-# App
+# Similarity microservice
+
+## api
+
+* `/api/v1/list` get -- list avail models and tags
+
+* `/api/v1/words` get -- registered tokens entry
+
+* `/api/v1/texts` get -- registered texts entry
+
+## default readme
 
 To start your Phoenix server:
 
