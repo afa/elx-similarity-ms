@@ -25,7 +25,7 @@ defmodule AppWeb.Router do
       end
 
       get "/", DashboardController, :index
-      get "/:key", DashboardController, :show
+      # get "/:key", DashboardController, :show
     end
   end
 end
