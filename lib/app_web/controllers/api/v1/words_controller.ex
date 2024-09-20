@@ -1,4 +1,4 @@
-defmodule AppWeb.Api.V1.DashboardController do
+defmodule AppWeb.Api.V1.WordsController do
   use AppWeb, :controller
 
   def index(con, _params) do
@@ -6,3 +6,4 @@ defmodule AppWeb.Api.V1.DashboardController do
     |> json([:some, %{a: 1}])
   end
 end
+

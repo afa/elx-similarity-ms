@@ -9,7 +9,23 @@ defmodule AppWeb.Router do
     pipe_through :api
 
     scope "/v1", V1, as: :v1 do
-      get "/index", DashboardController, :index
+      scope "/words", as: :words do
+        get "/", WordsController, :index
+      end
+
+      scope "/texts", as: :texts do
+        get "/", TextsController, :index
+        post "/", TextsController, :create
+        put "/:document_key", TextsController, :update
+        delete "/:document_key", TextsController, :destroy
+      end
+
+      scope "/ranks", as: :ranks do
+        get "/:document_key", RanksController, :show
+      end
+
+      get "/", DashboardController, :index
+      # get "/:key", DashboardController, :show
     end
   end
 end

@@ -1,0 +1,120 @@
+version: '3.9'
+services:
+  web: &app
+    build:
+      context: .
+      dockerfile: .dev_conf/Dockerfile
+    # command: rails server -b 0.0.0.0 -p 3000 --no-log-to-stdout
+    volumes:
+      - .:/usr/src
+      - $HOME/.ssh:/root/.ssh
+    tmpfs:
+      - /usr/src/tmp/pids
+      - /usr/src/tmp/cache
+    tty: true
+    stdin_open: true
+    ports:
+      - '3000:3000'
+      - '4000:4000'
+    depends_on:
+      - db
+      - redis
+      - selenium
+      - rabbitmq
+      # - sphinx
+    env_file:
+      - .dev_conf/.env
+    networks:
+      default:
+        aliases:
+          - shop.front
+
+  db:
+    image: mariadb:10.6
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./tmp/init:/initdb
+    ports:
+      - '3306:3306'
+    restart: always
+    env_file:
+      - .dev_conf/.env.db
+
+  delayed_job:
+    <<: *app
+    command: rake ts:restart jobs:work
+    restart: always
+    ports: []
+
+  mq_listener:
+    <<: *app
+    entrypoint: /usr/src/bin/card_cache_update_listener
+    restart: always
+    ports: []
+
+  redis:
+    image: redis:alpine
+    volumes:
+      - redis:/data
+    ports: ['6379:6379']
+
+  # adminer:
+  #   image: adminer:latest
+  #   restart: unless-stopped
+  #   ports:
+  #     - '8080:8080'
+
+  # nginx:
+  #   image: nginx:alpine
+  #   volumes:
+  #     - .dev_conf/nginx.conf:/etc/nginx/nginx.conf:ro
+  #   depends_on:
+  #     - web
+  #   ports:
+  #     - '8000:80'
+
+  # https://github.com/SeleniumHQ/docker-selenium#debugging
+  selenium:
+    image: selenium/standalone-chrome:4.1.1-20220121
+    # image: selenium/standalone-firefox:4.1.1-20220121
+    shm_size: 2gb
+    ports:
+      - '4444:4444'
+      - '7900:7900' # for noVNC client
+    restart: always
+  # sphinx:
+  #   image: macbre/sphinxsearch:3.4.1
+  #   ports:
+  #   - "127.0.0.1:9306:9306" # bind to local interface only!
+  #   volumes:
+  #   - ./data:/opt/sphinx/index  # directory where sphinx will store index data
+  #   - ./config/development.sphinx.conf:/opt/sphinx/conf/sphinx.conf  # SphinxSE configuration file
+  #   - ./logs/sphinx:/opt/sphinx/log
+  #   mem_limit: 512m # match indexer.value from sphinx.conf
+  rabbitmq:
+    image: rabbitmq:3.10.7-management
+    hostname: rabbitmq
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=rmuser
+      - RABBITMQ_DEFAULT_PASS=rmpassword
+      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error},{default,error}] disk_free_limit 2147483648
+    # volumes:
+    #   - ./rabbitmq:/var/lib/rabbitmq
+    ports:
+      - 15672:15672
+      - 5672:5672
+  opensearch:
+    image: opensearchproject/opensearch:latest
+    hostname: opensearch
+    environment:
+      - discovery.type=single-node
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=Eexample-1
+    restart: always
+    ports:
+      - '9200:9200'
+      - '9600:9600'
+volumes:
+  db_data:
+  redis:
+  # nginx:
