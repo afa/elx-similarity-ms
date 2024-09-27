@@ -9,3 +9,6 @@
 #
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
+
+App.Repo.insert(%Similarity.Model{name: "tf_idf"})
+App.Repo.insert(%Similarity.Model{name: "bm25"})
