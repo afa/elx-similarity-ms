@@ -1,5 +1,6 @@
 defmodule Similarity.Model do
   use Ecto.Schema
+  @derive {Jason.Encoder, only: [:id, :name, :state]}
 
   schema "similarity_model" do
     field :name, :string
