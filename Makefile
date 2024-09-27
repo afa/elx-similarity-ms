@@ -6,3 +6,5 @@ routes:
 	mix phx.routes
 server:
 	mix phx.server
+sh:
+	iex -S mix
