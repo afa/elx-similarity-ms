@@ -8,3 +8,5 @@ server:
 	mix phx.server
 sh:
 	iex -S mix
+lines:
+	env zsh -c 'ls **/*.(ex|exs)'|grep -v '^deps'|grep -v '^_build'|xargs cat|wc -l
