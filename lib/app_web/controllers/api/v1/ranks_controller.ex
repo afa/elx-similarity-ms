@@ -1,6 +1,6 @@
 defmodule AppWeb.Api.V1.RanksController do
   use AppWeb, :controller
-  require OK
+  # require OK
 
   @moduledoc """
   API for documents ranks
@@ -18,15 +18,14 @@ defmodule AppWeb.Api.V1.RanksController do
         Similarity.Model.active
         |> Enum.map(fn m -> m.name end)
     end
-    OK.try do
-      res <- Api.V1.Ranks.Show.call(key, %{models: models})
-    after
+    with {:ok, res} <- Api.V1.Ranks.Show.call(key, %{models: models})
+    do
       json(con, res)
-    rescue
-      _ -> con
-      |> put_status(:unprocessable_entity)
-      |> json(%{error: "invalid"})
-
+    else
+      {:error, err} ->
+        con
+        |> put_status(:unprocessable_entity)
+        |> json(%{error: err})
     end
   end
 end
